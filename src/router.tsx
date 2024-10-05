@@ -1,5 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
+
 import { Home } from "./pages/Home";
+import { CreateRoom } from "./pages/CreateRoom";
 
 export const router = createBrowserRouter([
   {
@@ -7,8 +9,8 @@ export const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: '/auth',
-    element: <div>Auth</div>
+    path: '/room/create',
+    element: <CreateRoom />
   },
   {
     path: '/room/:code',
