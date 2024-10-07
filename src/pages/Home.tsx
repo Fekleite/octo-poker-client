@@ -1,5 +1,6 @@
-import octopus from '@/assets/octopus.png'
 import { Link } from 'react-router-dom'
+
+import octopus from '@/assets/octopus.png'
 
 export function Home() {
   return (
