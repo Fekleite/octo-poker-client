@@ -13,7 +13,7 @@ export function Home() {
 
           <div className='flex items-center gap-2 mt-4'>
             <Link to="/room/create" className='inline-block px-4 py-2 rounded-md bg-pink-500 hover:bg-pink-600 duration-300 text-slate-50 font-medium'>Start a new room</Link>
-            <Link to="/auth" className='px-4 py-2 text-slate-50 font-medium'>Join in a room</Link>
+            <Link to="/room/join" className='px-4 py-2 text-slate-50 font-medium'>Join in a room</Link>
           </div>
         </div>
       </div>
