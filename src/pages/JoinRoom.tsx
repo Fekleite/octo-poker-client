@@ -1,7 +1,10 @@
-import octopus from '@/assets/octopus.png'
-import { socket } from '@/socket';
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
+
+import octopus from '@/assets/octopus.png'
+
+import { socket } from '@/socket';
+import { Button } from '@/components/Button';
 
 interface FormData {
   username: string;
@@ -56,7 +59,7 @@ export function JoinRoom() {
             placeholder='Type room code' 
           />
 
-          <button type="submit" className='px-4 py-2 rounded-md bg-pink-500 hover:bg-pink-600 duration-300 text-slate-50 font-medium'>Join this room</button>
+          <Button type="submit">Join this room</Button>
         </form>
 
         <Link to="/room/create" className='text-sm font-medium text-blue-500 hover:underline decoration-blue-500'>I want to create a new room</Link>

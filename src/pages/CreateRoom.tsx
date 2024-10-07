@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import octopus from '@/assets/octopus.png'
 
 import { socket } from '@/socket';
+import { Button } from '@/components/Button';
 interface FormData {
   username: string;
   roomName: string;
@@ -63,7 +64,7 @@ export function CreateRoom() {
             placeholder='Type the room name' 
           />
 
-          <button type="submit" className='px-4 py-2 rounded-md bg-pink-500 hover:bg-pink-600 duration-300 text-slate-50 font-medium'>Create room</button>
+          <Button type="submit" >Create room</Button>
         </form>
 
         <Link to="/room/join" className='text-sm font-medium text-blue-500 hover:underline decoration-blue-500'>I already have a code</Link>
