@@ -14,22 +14,29 @@ interface Vote {
   vote: string;
 }
 
-interface RoomUser {
+export interface User {
+  name: string;
   id: string;
-  username: string;
+  role: 'default' | 'admin'
 }
 
-interface FormData {
+interface RoomUsersResponse {
+  name: string;
+  code: string;
+  users: User[]
+}
+
+interface SendVoteFormData {
   card: string;
 }
 
 export function Room() {
   const [votes, setVotes] = useState<Vote[]>([])
-  const [roomUsers, setRoomUsers] = useState<RoomUser[]>([])
+  const [roomUsers, setRoomUsers] = useState<RoomUsersResponse | null>(null)
   const [canRevealCards, setCanRevealCards] = useState(false)
   const [openToast, setOpenToast] = useState(false);
 
-  const { register, handleSubmit, resetField } = useForm<FormData>()
+  const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
   const { code } = useParams()
   const navigate = useNavigate()
 
@@ -38,9 +45,9 @@ export function Room() {
       setVotes(prevState => [...prevState, data])
     })
 
-    socket.on('room-users', (usersInRoom: RoomUser[]) => {
+    socket.on('room-users', (response: RoomUsersResponse) => {
+      setRoomUsers(response);
       setOpenToast(true)
-      setRoomUsers(usersInRoom);
     });
 
     return () => {
@@ -49,7 +56,7 @@ export function Room() {
     };
   }, [])
 
-  function handleSendVote(data: FormData) {
+  function handleSendVote(data: SendVoteFormData) {
     if (data.card && code) {
       const payload = { roomCode: code, vote: data.card }
       socket.emit('send-vote', payload)
@@ -67,7 +74,7 @@ export function Room() {
   }
 
   function handleCloseRoom() {
-    setRoomUsers([]);
+    setRoomUsers(null);
     setVotes([])
 
     socket.disconnect()
@@ -78,19 +85,19 @@ export function Room() {
   const isUserAdmin = true
 
   const roomUsersWithVote = useMemo(() => {
-    return roomUsers.map(roomUser => {
-      const userVote = votes.find(vote => vote.user === roomUser.id)
+    return roomUsers?.users.map(user => {
+      const userVote = votes.find(vote => vote.user === user.id)
   
       if (userVote) {
         return {
-          ...roomUser,
+          ...user,
           hasVoted: true,
           vote: userVote.vote
         }
       }
   
       return {
-        ...roomUser,
+        ...user,
         hasVoted: false,
         vote: null
       }
@@ -114,7 +121,7 @@ export function Room() {
                       )}
                     </div>
                     <span className="font-semibold text-slate-600">
-                      {user.username}
+                      {user.name}
                     </span>
                   </li>
                 )

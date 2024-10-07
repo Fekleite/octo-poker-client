@@ -6,31 +6,32 @@ import octopus from '@/assets/octopus.png'
 
 import { socket } from '@/socket';
 import { Button } from '@/components/Button';
-interface FormData {
-  username: string;
-  roomName: string;
+
+interface CreateFormData {
+  name: string;
+  room: string;
 }
 
 export function CreateRoom() {
-  const { register, handleSubmit } = useForm<FormData>()
+  const { register, handleSubmit } = useForm<CreateFormData>()
   const navigate = useNavigate()
 
-  function handleCreateRoom(data: FormData) {
-    const roomCode = nanoid()
+  function handleCreateRoom(data: CreateFormData) {
+    const code = nanoid()
+    
     const payload = {
-      username: data.username,
-      roomCode,
+      room: {
+        name: data.room,
+        code,
+      },
+      user: {
+        name: data.name
+      }
     }
 
-    localStorage.setItem("octopoker@data", JSON.stringify({
-      ...data,
-      roomCode,
-      role: "user-admin"
-    }))
+    socket.emit("create-room", payload);
 
-    socket.emit("join-room", payload);
-
-    navigate(`/room/join/${roomCode}`)
+    navigate(`/room/join/${code}`)
   }
 
   return (
@@ -52,13 +53,13 @@ export function CreateRoom() {
           className='my-6 w-full max-w-60 flex flex-col gap-2'
         >
           <input 
-            {...register('username')}
+            {...register('name')}
             className='w-full h-10 bg-slate-100 px-4 py-2 rounded-md focus:ring-2 ring-blue-500 outline-none' 
             type="text" 
             placeholder='Type your name' 
           />
           <input
-            {...register('roomName')}
+            {...register('room')}
             className='w-full h-10 bg-slate-100 px-4 py-2 rounded-md focus:ring-2 ring-blue-500 outline-none' 
             type="text" 
             placeholder='Type the room name' 
