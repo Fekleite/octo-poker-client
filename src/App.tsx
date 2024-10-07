@@ -15,6 +15,8 @@ export function App() {
     }
   }, [])
 
+  socket.connect()
+
   return (
     <RouterProvider router={router} />
   )
