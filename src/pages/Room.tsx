@@ -103,11 +103,16 @@ export function Room() {
   }
 
   function handleCloseRoom() {
-    setRoomUsers(null);
-    setVotes([])
+    const payload = { 
+      room: {
+        code,
+      },
+      user: {
+        id: socket.id
+      }
+    }
 
-    socket.disconnect()
-
+    socket.emit('close-room', payload)
     navigate('/')
   }
 
