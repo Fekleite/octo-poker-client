@@ -29,7 +29,7 @@ export function CreateRoom() {
       }
     }
 
-    socket.emit("create-room", payload);
+    socket.emit("on-create-room", payload);
 
     navigate(`/room/join/${code}`)
   }

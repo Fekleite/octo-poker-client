@@ -25,7 +25,7 @@ export function JoinRoom() {
       }
     }
 
-    socket.emit("join-room", payload);
+    socket.emit("on-join-room", payload);
 
     navigate(`/room/join/${data.code}`)
   }
