@@ -10,6 +10,10 @@ export function App() {
   useEffect(() => {
     socket.on('connect', () => {})
 
+    socket.on('error', (response: { error: string }) => {
+      console.error(response.error)
+    })
+
     return () => {
       socket.on('disconnect', () => {})
     }
