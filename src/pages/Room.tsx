@@ -30,13 +30,17 @@ interface SendVoteFormData {
   card: string;
 }
 
+interface VotesRoomFormData {
+  votes: VoteUserResponse[];
+}
+
 export function Room() {
   const [votes, setVotes] = useState<VoteUserResponse[]>([])
   const [roomUsers, setRoomUsers] = useState<RoomUsersResponse | null>(null)
   const [canRevealCards, setCanRevealCards] = useState(false)
   const [openToast, setOpenToast] = useState(false);
 
-  const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
+  const { register, handleSubmit } = useForm<SendVoteFormData>()
   const { code } = useParams()
   const navigate = useNavigate()
 
@@ -49,8 +53,13 @@ export function Room() {
       setRoomUsers(response);
     });
 
-    socket.on('votes-room', () => {
-      setCanRevealCards(true)
+    socket.on('votes-room', (response: VotesRoomFormData) => {
+      if (response.votes.length === 0) {
+        setCanRevealCards(false);
+        setVotes([])
+      } else {
+        setCanRevealCards(true)
+      }
     });
 
     return () => {
@@ -84,9 +93,13 @@ export function Room() {
   }
 
   function handleStartNewRound() {
-    setCanRevealCards(false);
-    resetField('card')
-    setVotes([])
+    const payload = { 
+      room: {
+        code,
+      }
+    }
+
+    socket.emit('reset-votes', payload)
   }
 
   function handleCloseRoom() {
