@@ -11,7 +11,7 @@ import { RoomToast } from '@/components/RoomToast';
 
 interface Vote {
   user: string;
-  vote: string;
+  value: string | number;
 }
 
 export interface User {
@@ -41,7 +41,7 @@ export function Room() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    socket.on('message', (data: Vote) => {
+    socket.on('vote-user', (data: Vote) => {
       setVotes(prevState => [...prevState, data])
     })
 
@@ -51,14 +51,20 @@ export function Room() {
     });
 
     return () => {
-      socket.off('message');
+      socket.off('vote-user');
       socket.off('room-users');
     };
   }, [])
 
   function handleSendVote(data: SendVoteFormData) {
     if (data.card && code) {
-      const payload = { roomCode: code, vote: data.card }
+      const payload = { 
+        room: {
+          code,
+        }, 
+        value: data.card 
+      }
+
       socket.emit('send-vote', payload)
     }
   }
@@ -92,7 +98,7 @@ export function Room() {
         return {
           ...user,
           hasVoted: true,
-          vote: userVote.vote
+          vote: userVote.value
         }
       }
   
