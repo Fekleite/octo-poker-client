@@ -9,7 +9,7 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
 import { RoomToast } from '@/components/RoomToast';
 
-interface Vote {
+interface VoteUserResponse {
   user: string;
   value: string | number;
 }
@@ -31,7 +31,7 @@ interface SendVoteFormData {
 }
 
 export function Room() {
-  const [votes, setVotes] = useState<Vote[]>([])
+  const [votes, setVotes] = useState<VoteUserResponse[]>([])
   const [roomUsers, setRoomUsers] = useState<RoomUsersResponse | null>(null)
   const [canRevealCards, setCanRevealCards] = useState(false)
   const [openToast, setOpenToast] = useState(false);
@@ -41,18 +41,22 @@ export function Room() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    socket.on('vote-user', (data: Vote) => {
-      setVotes(prevState => [...prevState, data])
+    socket.on('vote-user', (response: VoteUserResponse) => {
+      setVotes(prevState => [...prevState, response])
     })
 
     socket.on('room-users', (response: RoomUsersResponse) => {
       setRoomUsers(response);
-      setOpenToast(true)
+    });
+
+    socket.on('votes-room', () => {
+      setCanRevealCards(true)
     });
 
     return () => {
       socket.off('vote-user');
       socket.off('room-users');
+      socket.off('votes-room');
     };
   }, [])
 
@@ -70,7 +74,13 @@ export function Room() {
   }
 
   function handleRevealVote() {
-    setCanRevealCards(true);
+    const payload = { 
+      room: {
+        code,
+      }
+    }
+
+    socket.emit('reveal-votes', payload)
   }
 
   function handleStartNewRound() {
