@@ -8,77 +8,95 @@ import { fibonacci } from "@/utils/sequences"
 import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
 import { RoomToast } from '@/components/RoomToast';
-
-interface VoteUserResponse {
-  user: string;
-  value: string | number;
-}
-
-export interface User {
-  name: string;
-  id: string;
-  role: 'default' | 'admin'
-}
-
-interface RoomUsersResponse {
-  name: string;
-  code: string;
-  users: User[]
-}
+import { IRoom, IUser, IVote } from '@/@types/eventResponse';
 
 interface SendVoteFormData {
-  card: string;
-}
-
-interface VotesRoomFormData {
-  votes: VoteUserResponse[];
+  card: string | number
 }
 
 export function Room() {
-  const [votes, setVotes] = useState<VoteUserResponse[]>([])
-  const [roomUsers, setRoomUsers] = useState<RoomUsersResponse | null>(null)
-  const [canRevealCards, setCanRevealCards] = useState(false)
-  const [openToast, setOpenToast] = useState(false);
+  const [votes, setVotes] = useState<IVote[]>([])
+  const [room, setRoom] = useState<IRoom | null>(null)
+
+  const [canShowCards, setCanShowCards] = useState(false)
+  
+  const [isToastOpen, setIsToastOpen] = useState(false)
+  const [toastInfo, setToastInfo] = useState({
+    title: '',
+    description: ''
+  });
 
   const { register, handleSubmit } = useForm<SendVoteFormData>()
   const { code } = useParams()
   const navigate = useNavigate()
 
   useEffect(() => {
-    socket.on('vote-user', (response: VoteUserResponse) => {
-      setVotes(prevState => [...prevState, response])
+    socket.on('on-room-was-create', (response: { room: IRoom }) => {
+      setRoom(response.room)
     })
 
-    socket.on('room-users', (response: RoomUsersResponse) => {
-      setRoomUsers(response);
-    });
+    socket.on('on-user-joined-room', (response: { room: IRoom, user: IUser }) => {
+      setRoom(response.room)
+      setIsToastOpen(true)
+      setToastInfo({
+        title: `${response.user.name} joined!`,
+        description: "There is a new user in the room."
+      })
+    })
 
-    socket.on('votes-room', (response: VotesRoomFormData) => {
-      if (response.votes.length === 0) {
-        setCanRevealCards(false);
-        setVotes([])
-      } else {
-        setCanRevealCards(true)
-      }
-    });
+    socket.on('on-user-left-room', (response: { room: IRoom, user: IUser }) => {
+      setRoom(response.room)
+      setIsToastOpen(true)
+      setToastInfo({
+        title: `${response.user.name} left!`,
+        description: "An user just left the room."
+      })
+    })
+
+    socket.on('on-room-was-close', () => {
+      setRoom(null)
+      navigate("/")
+    })
+
+    socket.on('on-vote-was-send', () => {
+      setIsToastOpen(true)
+      setToastInfo({
+        title: "Someone already vote!",
+        description: "There is a new vote for this round."
+      })
+    })
+
+    socket.on('on-votes-were-reveal', (response: { votes: IVote[] }) => {
+      setVotes(response.votes);
+      setCanShowCards(true)
+    })
+
+    socket.on('on-votes-were-reset', (response: { votes: [] }) => {
+      setVotes(response.votes)
+      setCanShowCards(false)
+    })
 
     return () => {
-      socket.off('vote-user');
-      socket.off('room-users');
-      socket.off('votes-room');
+      socket.off('on-room-was-create');
+      socket.off('on-user-joined-room');
+      socket.off('on-user-left-room');
+      socket.off('on-room-was-close');
+      socket.off('on-vote-was-send');
+      socket.off('on-votes-were-reveal');
+      socket.off('on-votes-were-reset');
     };
-  }, [])
+  }, [navigate])
 
   function handleSendVote(data: SendVoteFormData) {
     if (data.card && code) {
       const payload = { 
         room: {
           code,
-        }, 
+        },
         value: data.card 
       }
 
-      socket.emit('send-vote', payload)
+      socket.emit('on-send-vote', payload)
     }
   }
 
@@ -89,7 +107,7 @@ export function Room() {
       }
     }
 
-    socket.emit('reveal-votes', payload)
+    socket.emit('on-reveal-votes', payload)
   }
 
   function handleStartNewRound() {
@@ -99,7 +117,7 @@ export function Room() {
       }
     }
 
-    socket.emit('reset-votes', payload)
+    socket.emit('on-reset-votes', payload)
   }
 
   function handleCloseRoom() {
@@ -119,7 +137,7 @@ export function Room() {
   const isUserAdmin = true
 
   const roomUsersWithVote = useMemo(() => {
-    return roomUsers?.users.map(user => {
+    return room?.users.map(user => {
       const userVote = votes.find(vote => vote.user === user.id)
   
       if (userVote) {
@@ -136,7 +154,7 @@ export function Room() {
         vote: null
       }
     })
-  }, [roomUsers, votes])
+  }, [room, votes])
 
   return (
     <Toast.Provider duration={2000}>
@@ -150,7 +168,7 @@ export function Room() {
                 return (
                   <li className="space-y-2" key={user.id}>
                     <div className={`w-12 h-16 rounded-md flex items-center justify-center ${user.hasVoted ? 'bg-pink-500' : 'bg-blue-500'}`}>
-                      {canRevealCards &&  user.hasVoted && (
+                      {canShowCards &&  user.hasVoted && (
                         <span className='font-display text-slate-50 text-xl'>{user.vote}</span>
                       )}
                     </div>
@@ -210,10 +228,10 @@ export function Room() {
       </div>
 
       <RoomToast 
-        open={openToast} 
-        onOpenChange={setOpenToast}
-        title='User just joined!'
-        description='There is a new user in this room.'
+        open={isToastOpen} 
+        onOpenChange={setIsToastOpen}
+        title={toastInfo.title}
+        description={toastInfo.description}
       />        
     </Toast.Provider>
   )
