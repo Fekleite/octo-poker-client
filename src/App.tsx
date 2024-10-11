@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { RouterProvider } from "react-router-dom"
+import { Toaster } from "sonner"
 
 import { socket } from "./socket"
 import { router } from "./router"
@@ -22,6 +23,9 @@ export function App() {
   socket.connect()
 
   return (
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+      <Toaster richColors />
+    </>
   )
 }
