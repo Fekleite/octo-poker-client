@@ -26,7 +26,7 @@ export function Room() {
     description: ''
   });
 
-  const { register, handleSubmit } = useForm<SendVoteFormData>()
+  const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
   const { code } = useParams()
   const navigate = useNavigate()
 
@@ -66,6 +66,10 @@ export function Room() {
       })
     })
 
+    socket.on('on-vote-was-remove', () => {
+      console.log("Vote removed!")
+    })
+
     socket.on('on-votes-were-reveal', (response: { votes: IVote[] }) => {
       setVotes(response.votes);
       setCanShowCards(true)
@@ -97,6 +101,20 @@ export function Room() {
       }
 
       socket.emit('on-send-vote', payload)
+    }
+  }
+
+  function handleRemoveVote() {
+    if (code) {
+      const payload = { 
+        room: {
+          code,
+        },
+      }
+
+      socket.emit('on-remove-vote', payload)
+
+      resetField('card')
     }
   }
 
@@ -222,7 +240,10 @@ export function Room() {
               ))}
             </div>
 
-            <button type="submit" className="w-24 h-24 translate-y-4 rounded-full border-pink-500 bg-pink-500 hover:bg-pink-600 duration-300 text-slate-50 text-lg font-bold">Play</button>
+            <div className='w-full flex justify-center gap-4 mt-8 p-4 bg-slate-100 '>
+              <Button type="submit" variant='secondary'>Send vote</Button>
+              <Button type="button" onClick={handleRemoveVote} variant='danger'>Reset vote</Button>
+            </div>
           </form>
         </div>
       </div>
