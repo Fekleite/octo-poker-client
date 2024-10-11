@@ -1,31 +1,16 @@
-import { useEffect } from "react"
 import { RouterProvider } from "react-router-dom"
 import { Toaster } from "sonner"
 
-import { socket } from "./socket"
 import { router } from "./router"
+import { SocketContextProvider } from "./contexts/useSocket"
 
 import './index.css'
 
 export function App() {
-  useEffect(() => {
-    socket.on('connect', () => {})
-
-    socket.on('error', (response: { error: string }) => {
-      console.error(response.error)
-    })
-
-    return () => {
-      socket.on('disconnect', () => {})
-    }
-  }, [])
-
-  socket.connect()
-
   return (
-    <>
+    <SocketContextProvider>
       <RouterProvider router={router} />
       <Toaster richColors />
-    </>
+    </SocketContextProvider>
   )
 }
