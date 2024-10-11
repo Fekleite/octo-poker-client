@@ -1,12 +1,12 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import octopus from '@/assets/octopus.png'
 
-import { SocketContext } from '@/contexts/useSocket'
+import { useSocket } from '@/hooks/useSocket';
 
 export function Home() {
-  const { socket } = useContext(SocketContext)
+  const { socket } = useSocket()
 
   useEffect(() => {
     socket.connect()

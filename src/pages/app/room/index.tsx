@@ -1,11 +1,11 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { IRoom, IUser, IVote } from '@/@types/eventResponse';
 import { fibonacci } from "@/utils/sequences"
-import { SocketContext } from '@/contexts/useSocket';
+import { useSocket } from '@/hooks/useSocket';
 
 import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
@@ -19,7 +19,7 @@ export function Room() {
   const [room, setRoom] = useState<IRoom | null>(null)
   const [canShowCards, setCanShowCards] = useState(false)
 
-  const { socket } = useContext(SocketContext)
+  const { socket } = useSocket()
 
   const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
 
