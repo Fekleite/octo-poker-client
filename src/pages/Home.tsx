@@ -8,7 +8,7 @@ export function Home() {
       <div className='flex items-center gap-8'>
         <img src={octopus} alt="Octopus" className='animate-fade-in'/>
 
-        <div className='animate-fade-in-up'>
+        <div>
           <h1 className="font-display text-6xl text-slate-50">OctoPoker</h1>
           <p className='text-slate-50 mt-2'>Collaborate with your team, plan what to do.</p>
 

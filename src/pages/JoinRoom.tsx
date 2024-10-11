@@ -41,7 +41,7 @@ export function JoinRoom() {
         </div>
       </div>
 
-      <div className='h-full flex-1 flex flex-col items-center justify-center animate-fade-in-up'>
+      <div className='h-full flex-1 flex flex-col items-center justify-center'>
       <h1 className="font-display text-6xl text-blue-500">OctoPoker</h1>
 
         <form 
