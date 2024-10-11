@@ -75,11 +75,11 @@ export function Room() {
 
   function handleSendVote(data: SendVoteFormData) {
     if (data.card && code) {
-      const payload = { 
+      const payload = {
         room: {
           code,
         },
-        value: data.card 
+        value: data.card
       }
 
       socket.emit('on-send-vote', payload)
@@ -88,7 +88,7 @@ export function Room() {
 
   function handleRemoveVote() {
     if (code) {
-      const payload = { 
+      const payload = {
         room: {
           code,
         },
@@ -101,7 +101,7 @@ export function Room() {
   }
 
   function handleRevealVote() {
-    const payload = { 
+    const payload = {
       room: {
         code,
       }
@@ -111,7 +111,7 @@ export function Room() {
   }
 
   function handleStartNewRound() {
-    const payload = { 
+    const payload = {
       room: {
         code,
       }
@@ -121,7 +121,7 @@ export function Room() {
   }
 
   function handleCloseRoom() {
-    const payload = { 
+    const payload = {
       room: {
         code,
       },
@@ -139,7 +139,7 @@ export function Room() {
   const roomUsersWithVote = useMemo(() => {
     return room?.users.map(user => {
       const userVote = votes.find(vote => vote.user === user.id)
-  
+
       if (userVote) {
         return {
           ...user,
@@ -147,7 +147,7 @@ export function Room() {
           vote: userVote.value
         }
       }
-  
+
       return {
         ...user,
         hasVoted: false,
@@ -187,7 +187,7 @@ export function Room() {
             <Button
               onClick={handleRevealVote}
               variant='secondary'
-              type="button" 
+              type="button"
             >
               Reveal cards
             </Button>
@@ -202,17 +202,17 @@ export function Room() {
       </div>
 
       <div className="w-full">
-        <form 
+        <form
           onSubmit={handleSubmit(handleSendVote)}
           className="flex flex-col items-center justify-end"
         >
           <div className="flex gap-4 justify-center">
             {fibonacci.map(value => (
               <div key={value}>
-                <input 
+                <input
                   {...register('card')}
-                  className="appearance-none peer" 
-                  type="radio" name="card" 
+                  className="appearance-none peer"
+                  type="radio" name="card"
                   id={`card-${value}`}
                   value={value}
                 />
