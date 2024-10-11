@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { IRoom, IUser, IVote } from '@/@types/eventResponse';
-import { socket } from '@/socket';
 import { fibonacci } from "@/utils/sequences"
+import { SocketContext } from '@/contexts/useSocket';
 
 import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
@@ -19,7 +19,10 @@ export function Room() {
   const [room, setRoom] = useState<IRoom | null>(null)
   const [canShowCards, setCanShowCards] = useState(false)
 
+  const { socket } = useContext(SocketContext)
+
   const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
+
   const { code } = useParams()
   const navigate = useNavigate()
 
@@ -70,7 +73,7 @@ export function Room() {
       socket.off('on-votes-were-reveal');
       socket.off('on-votes-were-reset');
     };
-  }, [navigate])
+  }, [navigate, socket])
 
   function handleSendVote(data: SendVoteFormData) {
     if (data.card && code) {

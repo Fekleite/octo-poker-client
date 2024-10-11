@@ -1,9 +1,10 @@
+import { useContext } from 'react';
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
 import octopus from '@/assets/octopus.png'
 
-import { socket } from '@/socket';
+import { SocketContext } from '@/contexts/useSocket';
 
 import { Button } from '@/components/Button';
 
@@ -13,7 +14,10 @@ interface JoinFormData {
 }
 
 export function JoinRoom() {
+  const { socket } = useContext(SocketContext)
+
   const { register, handleSubmit } = useForm<JoinFormData>()
+
   const navigate = useNavigate()
 
   function handleJoinInRoom(data: JoinFormData) {

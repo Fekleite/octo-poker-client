@@ -1,8 +1,17 @@
+import { useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import octopus from '@/assets/octopus.png'
 
+import { SocketContext } from '@/contexts/useSocket'
+
 export function Home() {
+  const { socket } = useContext(SocketContext)
+
+  useEffect(() => {
+    socket.connect()
+  }, [socket])
+
   return (
     <div className="w-full h-screen bg-blue-500 flex justify-center items-center">
       <div className='flex items-center gap-8'>

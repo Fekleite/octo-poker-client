@@ -1,10 +1,11 @@
+import { useContext } from 'react';
 import { nanoid } from 'nanoid';
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
 import octopus from '@/assets/octopus.png'
 
-import { socket } from '@/socket';
+import { SocketContext } from '@/contexts/useSocket';
 
 import { Button } from '@/components/Button';
 
@@ -14,7 +15,10 @@ interface CreateRoomData {
 }
 
 export function CreateRoom() {
+  const { socket } = useContext(SocketContext)
+
   const { register, handleSubmit } = useForm<CreateRoomData>()
+
   const navigate = useNavigate()
 
   function handleCreateRoom(data: CreateRoomData) {
