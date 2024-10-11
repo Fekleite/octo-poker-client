@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import octopus from '@/assets/octopus.png'
 
 import { socket } from '@/socket';
+
 import { Button } from '@/components/Button';
 
 interface JoinFormData {
@@ -64,7 +65,12 @@ export function JoinRoom() {
           <Button type="submit">Join this room</Button>
         </form>
 
-        <Link to="/room/create" className='text-sm font-medium text-blue-500 hover:underline decoration-blue-500'>I want to create a new room</Link>
+        <Link
+          to="/room/create"
+          className='text-sm font-medium text-blue-500 hover:underline decoration-blue-500'
+        >
+          I want to create a new room
+        </Link>
       </div>
     </div>
   )

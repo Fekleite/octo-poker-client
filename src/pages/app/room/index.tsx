@@ -17,7 +17,6 @@ interface SendVoteFormData {
 export function Room() {
   const [votes, setVotes] = useState<IVote[]>([])
   const [room, setRoom] = useState<IRoom | null>(null)
-
   const [canShowCards, setCanShowCards] = useState(false)
 
   const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
@@ -216,7 +215,12 @@ export function Room() {
                   id={`card-${value}`}
                   value={value}
                 />
-                <label className="w-32 h-40 border-2 border-blue-500 rounded-md flex items-center justify-center font-display text-4xl text-blue-500 cursor-pointer hover:bg-blue-50 transition duration-300 peer-checked:bg-blue-500 peer-checked:text-slate-50" htmlFor={`card-${value}`}>{value}</label>
+                <label
+                  className="w-32 h-40 border-2 border-blue-500 rounded-md flex items-center justify-center font-display text-4xl text-blue-500 cursor-pointer hover:bg-blue-50 transition duration-300 peer-checked:bg-blue-500 peer-checked:text-slate-50"
+                  htmlFor={`card-${value}`}
+                >
+                  {value}
+                </label>
               </div>
             ))}
           </div>

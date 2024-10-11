@@ -5,18 +5,19 @@ import { Link, useNavigate } from 'react-router-dom'
 import octopus from '@/assets/octopus.png'
 
 import { socket } from '@/socket';
+
 import { Button } from '@/components/Button';
 
-interface CreateFormData {
+interface CreateRoomData {
   name: string;
   room: string;
 }
 
 export function CreateRoom() {
-  const { register, handleSubmit } = useForm<CreateFormData>()
+  const { register, handleSubmit } = useForm<CreateRoomData>()
   const navigate = useNavigate()
 
-  function handleCreateRoom(data: CreateFormData) {
+  function handleCreateRoom(data: CreateRoomData) {
     const code = nanoid()
 
     const payload = {
@@ -68,7 +69,12 @@ export function CreateRoom() {
           <Button type="submit" >Create room</Button>
         </form>
 
-        <Link to="/room/join" className='text-sm font-medium text-blue-500 hover:underline decoration-blue-500'>I already have a code</Link>
+        <Link
+          to="/room/join"
+          className='text-sm font-medium text-blue-500 hover:underline decoration-blue-500'
+        >
+          I already have a code
+        </Link>
       </div>
     </div>
   )
