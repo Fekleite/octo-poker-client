@@ -4,8 +4,11 @@ import { Home } from "./pages/app/home";
 import { CreateRoom } from "./pages/app/create-room";
 import { JoinRoom } from "./pages/app/join-room";
 import { Room } from "./pages/app/room";
+
 import { ServiceUnavailable } from "./pages/error/service-unavailable";
 import { NotFound } from "./pages/error/not-found";
+
+import { AuthLayout } from "./pages/layouts/auth";
 
 export const router = createBrowserRouter([
   {
@@ -13,15 +16,21 @@ export const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: '/room/create',
-    element: <CreateRoom />
+    path: '/room',
+    element: <AuthLayout />,
+    children: [
+      {
+        path: 'create',
+        element: <CreateRoom />
+      },
+      {
+        path: 'join',
+        element: <JoinRoom />
+      },
+    ]
   },
   {
-    path: '/room/join',
-    element: <JoinRoom />
-  },
-  {
-    path: '/room/join/:code',
+    path: '/room/:code',
     element: <Room />
   },
   {
