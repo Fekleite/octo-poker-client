@@ -1,10 +1,11 @@
-import { createContext, ReactNode, useEffect } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 
 import { socket } from "@/socket";
 
 interface SocketContextType {
   socket: Socket
+  isConnected: boolean
 }
 
 export const SocketContext = createContext({} as SocketContextType)
@@ -14,13 +15,15 @@ interface SocketContextProviderProps {
 }
 
 export function SocketContextProvider({ children }: SocketContextProviderProps) {
+  const [isConnected, setIsConnected] = useState(false)
+
   useEffect(() => {
     socket.on('connect', () => {
-      console.log("User connected")
+      setIsConnected(true)
     })
 
     socket.on('disconnect', () => {
-      console.log("User disconnected")
+      setIsConnected(false)
     })
 
     socket.on('error', (response: { error: string }) => {
@@ -34,7 +37,7 @@ export function SocketContextProvider({ children }: SocketContextProviderProps) 
 
   return (
     <SocketContext.Provider
-      value={{ socket }}
+      value={{ socket, isConnected }}
     >
       {children}
     </SocketContext.Provider>
