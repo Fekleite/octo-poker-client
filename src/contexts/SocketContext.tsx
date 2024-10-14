@@ -26,10 +26,6 @@ export function SocketContextProvider({ children }: SocketContextProviderProps) 
       setIsConnected(false)
     })
 
-    socket.on('error', (response: { error: string }) => {
-      console.error(response.error)
-    })
-
     return () => {
       socket.disconnect()
     }

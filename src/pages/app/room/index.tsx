@@ -25,53 +25,53 @@ export function Room() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    socket.on('on-room-was-create', (response: { room: IRoom }) => {
+    socket.on('created', (response: { room: IRoom }) => {
       setRoom(response.room)
     })
 
-    socket.on('on-user-joined-room', (response: { room: IRoom, user: IUser }) => {
+    socket.on('joined', (response: { room: IRoom, user: IUser }) => {
       setRoom(response.room)
-      toast.info(`${response.user.name} joined!`)
+      toast.success(`${response.user.name} joined!`)
     })
 
-    socket.on('on-user-left-room', (response: { room: IRoom, user: IUser }) => {
+    socket.on('left', (response: { room: IRoom, user: IUser }) => {
       setRoom(response.room)
-      toast.info(`${response.user.name} left!`)
+      toast.error(`${response.user.name} left!`)
     })
 
-    socket.on('on-room-was-close', () => {
+    socket.on('closed', () => {
       setRoom(null)
       navigate("/")
     })
 
-    socket.on('on-vote-was-send', (response: { user: string }) => {
-      setVotes(prevState => [...prevState, { user: response.user, value: "" }])
+    socket.on('vote-sent', (response: { user: string, value: string }) => {
+      setVotes(prevState => [...prevState, { user: response.user, value: response.value, }])
     })
 
-    socket.on('on-vote-was-remove', (response: { user: string }) => {
+    socket.on('vote-removed', (response: { user: string }) => {
       setVotes(prevState => {
         return prevState.filter(vote => vote.user !== response.user)
       })
     })
 
-    socket.on('on-votes-were-reveal', (response: { votes: IVote[] }) => {
-      setVotes(response.votes);
+    socket.on('revealed-votes', () => {
       setCanShowCards(true)
     })
 
-    socket.on('on-votes-were-reset', (response: { votes: [] }) => {
-      setVotes(response.votes)
+    socket.on('reset-votes', () => {
+      setVotes([])
       setCanShowCards(false)
     })
 
     return () => {
-      socket.off('on-room-was-create');
-      socket.off('on-user-joined-room');
-      socket.off('on-user-left-room');
-      socket.off('on-room-was-close');
-      socket.off('on-vote-was-send');
-      socket.off('on-votes-were-reveal');
-      socket.off('on-votes-were-reset');
+      socket.off('created');
+      socket.off('joined');
+      socket.off('left');
+      socket.off('close');
+      socket.off('vote-sent');
+      socket.off('vote-removed');
+      socket.off('revealed-votes');
+      socket.off('reset-votes');
     };
   }, [navigate, socket])
 
@@ -106,7 +106,6 @@ export function Room() {
     }
 
     socket.emit('close-room', payload)
-    navigate('/')
   }
 
   const currentUser = room?.users.find(user => user.id === socket.id)
