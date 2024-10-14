@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { IRoom, IUser, IVote } from '@/@types/eventResponse';
-import { fibonacci } from "@/utils/sequences"
 import { useSocket } from '@/hooks/useSocket';
 
 import { Header } from '@/components/Header';
 import { Button } from '@/components/Button';
-
-interface SendVoteFormData {
-  card: string | number
-}
+import { Deck } from '@/components/Deck';
 
 export function Room() {
   const [votes, setVotes] = useState<IVote[]>([])
@@ -20,9 +15,6 @@ export function Room() {
   const [canShowCards, setCanShowCards] = useState(false)
 
   const { socket } = useSocket()
-
-  const { register, handleSubmit, resetField } = useForm<SendVoteFormData>()
-
   const { code } = useParams()
   const navigate = useNavigate()
 
@@ -74,33 +66,6 @@ export function Room() {
       socket.off('on-votes-were-reset');
     };
   }, [navigate, socket])
-
-  function handleSendVote(data: SendVoteFormData) {
-    if (data.card && code) {
-      const payload = {
-        room: {
-          code,
-        },
-        value: data.card
-      }
-
-      socket.emit('on-send-vote', payload)
-    }
-  }
-
-  function handleRemoveVote() {
-    if (code) {
-      const payload = {
-        room: {
-          code,
-        },
-      }
-
-      socket.emit('on-remove-vote', payload)
-
-      resetField('card')
-    }
-  }
 
   function handleRevealVote() {
     const payload = {
@@ -204,35 +169,7 @@ export function Room() {
       </div>
 
       <div className="w-full">
-        <form
-          onSubmit={handleSubmit(handleSendVote)}
-          className="flex flex-col items-center justify-end"
-        >
-          <div className="flex gap-4 justify-center">
-            {fibonacci.map(value => (
-              <div key={value}>
-                <input
-                  {...register('card')}
-                  className="appearance-none peer"
-                  type="radio" name="card"
-                  id={`card-${value}`}
-                  value={value}
-                />
-                <label
-                  className="w-32 h-40 border-2 border-blue-500 rounded-md flex items-center justify-center font-display text-4xl text-blue-500 cursor-pointer hover:bg-blue-50 transition duration-300 peer-checked:bg-blue-500 peer-checked:text-slate-50"
-                  htmlFor={`card-${value}`}
-                >
-                  {value}
-                </label>
-              </div>
-            ))}
-          </div>
-
-          <div className='w-full flex justify-center gap-4 mt-8 p-4 bg-slate-100 '>
-            <Button type="submit" variant='secondary'>Send vote</Button>
-            <Button type="button" onClick={handleRemoveVote} variant='danger'>Reset vote</Button>
-          </div>
-        </form>
+        {code && <Deck code={code} />}
       </div>
     </div>
   )
