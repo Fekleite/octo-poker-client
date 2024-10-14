@@ -1,12 +1,16 @@
 import octopus from '@/assets/octopus.png'
+
 import { Button } from './Button'
 
+import { IUser } from '@/@types/eventResponse'
+
 interface HeaderProps {
-  onCloseRoom: () => void
+  onCloseRoom: () => void,
+  currentUser: IUser | undefined
 }
 
-export function Header({ onCloseRoom }: HeaderProps) {
-  const isUserAdmin = true
+export function Header({ onCloseRoom, currentUser }: HeaderProps) {
+  const isUserAdmin = currentUser?.role === 'admin'
 
   return (
     <header className="w-full flex justify-between items-center py-4 px-8 border-b border-slate-100">
@@ -15,28 +19,28 @@ export function Header({ onCloseRoom }: HeaderProps) {
 
         <div>
           <h2 className="text-xl font-display text-blue-500">Room name</h2>
-          <span className="text-xs font-medium text-slate-500">created by user</span>
+          <span className="text-xs font-medium text-slate-500">created by octo</span>
         </div>
       </div>
 
       <div className="flex gap-6">
         <div className="flex gap-2 items-center">
           <div className="w-10 h-10 bg-slate-100 rounded-full" />
-          <span className="text-sm font-medium text-slate-800">Username</span>
+          <span className="text-sm font-medium text-slate-800">{currentUser?.name}</span>
         </div>
 
-      {isUserAdmin && (
+        {isUserAdmin && (
           <div className="space-x-2">
             <Button
-              variant='secondary' 
-              type="button" 
+              variant='secondary'
+              type="button"
             >
               Invite players
             </Button>
             <Button
               onClick={onCloseRoom}
               variant='danger'
-              type="button" 
+              type="button"
             >
               Close room
             </Button>

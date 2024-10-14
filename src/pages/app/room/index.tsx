@@ -133,7 +133,10 @@ export function Room() {
 
   return (
     <div className="w-full">
-      <Header onCloseRoom={handleCloseRoom} />
+      <Header
+        onCloseRoom={handleCloseRoom}
+        currentUser={currentUser}
+      />
 
       <div className="w-full max-w-[880px] mx-auto my-10 flex justify-between gap-8">
         <div className='space-y-4'>
