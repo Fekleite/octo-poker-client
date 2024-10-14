@@ -44,14 +44,12 @@ export function Room() {
       navigate("/")
     })
 
-    socket.on('vote-sent', (response: { user: string, value: string }) => {
-      setVotes(prevState => [...prevState, { user: response.user, value: response.value, }])
+    socket.on('vote-sent', (response: { votes: IVote[] }) => {
+      setVotes(response.votes)
     })
 
-    socket.on('vote-removed', (response: { user: string }) => {
-      setVotes(prevState => {
-        return prevState.filter(vote => vote.user !== response.user)
-      })
+    socket.on('vote-remove', (response: { votes: IVote[] }) => {
+      setVotes(response.votes)
     })
 
     socket.on('revealed-votes', () => {
@@ -69,7 +67,7 @@ export function Room() {
       socket.off('left');
       socket.off('close');
       socket.off('vote-sent');
-      socket.off('vote-removed');
+      socket.off('vote-remove');
       socket.off('revealed-votes');
       socket.off('reset-votes');
     };
@@ -144,7 +142,7 @@ export function Room() {
 
             <ul className='mt-2 space-y-1'>
               {room?.users.map(user => (
-                <li className='flex gap-2 items-center'>
+                <li className='flex gap-2 items-center' key={user.id}>
                   <span className='font-medium text-sm text-slate-700'>{user.name}</span>
                   {user.role === 'admin' && (
                     <div className='text-xs py-[2px] px-1 rounded-md bg-blue-100 border border-blue-200 text-blue-500'>{user.role}</div>
