@@ -1,16 +1,23 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import octopus from '@/assets/octopus.png'
 
 import { useSocket } from '@/hooks/useSocket';
 
 export function Home() {
-  const { socket } = useSocket()
+  const { socket, isConnected } = useSocket()
+  const navigate = useNavigate()
 
   useEffect(() => {
     socket.connect()
   }, [socket])
+
+  useEffect(() => {
+    if (!isConnected) {
+      navigate('/')
+    }
+  }, [isConnected, navigate])
 
   return (
     <div className="w-full h-screen bg-blue-500 flex justify-center items-center">
