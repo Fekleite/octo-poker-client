@@ -6,8 +6,14 @@ import { IRoom, IUser, IVote } from '@/@types/eventResponse';
 import { useSocket } from '@/hooks/useSocket';
 
 import { Header } from '@/components/Header';
-import { Button } from '@/components/Button';
 import { Deck } from '@/components/Deck';
+import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
+
+interface VotesByUser {
+  user: IUser;
+  value: string | number
+}
 
 export function Room() {
   const [votes, setVotes] = useState<IVote[]>([])
@@ -38,12 +44,14 @@ export function Room() {
       navigate("/")
     })
 
-    socket.on('on-vote-was-send', () => {
-      toast.success("A player already vote!")
+    socket.on('on-vote-was-send', (response: { user: string }) => {
+      setVotes(prevState => [...prevState, { user: response.user, value: "" }])
     })
 
-    socket.on('on-vote-was-remove', () => {
-      toast.warning("A player remove his vote!")
+    socket.on('on-vote-was-remove', (response: { user: string }) => {
+      setVotes(prevState => {
+        return prevState.filter(vote => vote.user !== response.user)
+      })
     })
 
     socket.on('on-votes-were-reveal', (response: { votes: IVote[] }) => {
@@ -101,71 +109,86 @@ export function Room() {
     navigate('/')
   }
 
-  const isUserAdmin = true
+  const currentUser = room?.users.find(user => user.id === socket.id)
+  const isUserAdmin = currentUser?.role === 'admin'
 
-  const roomUsersWithVote = useMemo(() => {
-    return room?.users.map(user => {
-      const userVote = votes.find(vote => vote.user === user.id)
+  const votesByUser = useMemo(() => {
+    if (!room) {
+      return []
+    }
 
-      if (userVote) {
-        return {
-          ...user,
-          hasVoted: true,
-          vote: userVote.value
-        }
+    return votes.reduce((result, vote) => {
+      const userWhoVoted = room.users.find((user) => user.id === vote.user)
+
+      if (userWhoVoted) {
+        result.push({
+          user: userWhoVoted,
+          value: vote.value
+        })
       }
 
-      return {
-        ...user,
-        hasVoted: false,
-        vote: null
-      }
-    })
+      return result;
+    }, [] as VotesByUser[])
   }, [room, votes])
 
   return (
     <div className="w-full">
       <Header onCloseRoom={handleCloseRoom} />
 
-      <div className="w-full max-w-[640px] mx-auto my-10 space-y-4">
-        <div className="p-4 rounded-md bg-slate-100">
-          <ul className="grid grid-cols-5 gap-4 mb-5">
-            {roomUsersWithVote?.map(user => {
-              return (
-                <li className="space-y-2" key={user.id}>
-                  <div className={`w-12 h-16 rounded-md flex items-center justify-center ${user.hasVoted ? 'bg-pink-500' : 'bg-blue-500'}`}>
-                    {canShowCards &&  user.hasVoted && (
-                      <span className='font-display text-slate-50 text-xl'>{user.vote}</span>
-                    )}
-                  </div>
-                  <span className="font-semibold text-slate-600">
-                    {user.name}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+      <div className="w-full max-w-[880px] mx-auto my-10 flex justify-between gap-8">
+        <div className='space-y-4'>
+          <div>
+            <h3 className='text-lg font-medium text-blue-500'>Active users:</h3>
 
-          <span className="block text-center text-lg text-blue-300">Waiting for player votes...</span>
+            <ul className='mt-2 space-y-1'>
+              {room?.users.map(user => (
+                <li className='flex gap-2 items-center'>
+                  <span className='font-medium text-sm text-slate-700'>{user.name}</span>
+                  {user.role === 'admin' && (
+                    <div className='text-xs py-[2px] px-1 rounded-md bg-blue-100 border border-blue-200 text-blue-500'>{user.role}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {isUserAdmin && (
+            <div className="p-2 bg-slate-200 rounded-md flex flex-col gap-2 mt-2">
+              <Button
+                onClick={handleRevealVote}
+                variant='secondary'
+                type="button"
+              >
+                Reveal cards
+              </Button>
+              <Button
+                onClick={handleStartNewRound}
+                type="button"
+              >
+                Start new round
+              </Button>
+            </div>
+          )}
         </div>
 
-        {isUserAdmin && (
-          <div className="flex justify-center gap-2">
-            <Button
-              onClick={handleRevealVote}
-              variant='secondary'
-              type="button"
-            >
-              Reveal cards
-            </Button>
-            <Button
-              onClick={handleStartNewRound}
-              type="button"
-            >
-              Start new round
-            </Button>
-          </div>
-        )}
+        <div className="flex-1 flex items-center justify-center p-4 rounded-md border-2 border-slate-300">
+          {votes.length > 0 ? (
+            <div className="grid grid-cols-6 gap-4">
+              {votesByUser?.map((vote) => {
+                return (
+                  <Card
+                    key={vote.user.id}
+                    user={vote.user.name}
+                    vote={vote.value}
+                    canShowCardValue={canShowCards}
+                  />
+                )
+              })}
+            </div>
+          ) : (
+            <span className="block text-center text-lg text-blue-300">Waiting for votes...</span>
+          )}
+        </div>
       </div>
 
       <div className="w-full">
